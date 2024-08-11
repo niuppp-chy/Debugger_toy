@@ -49,7 +49,8 @@ void run_debugger(pid_t child_pid)
         procmsg("Child started. RIP: 0x%08x\n", regs.rip);
 
         /* Look at the word at the address we're interested in */
-        unsigned addr = 0x401797; // a = 5 的指令地址
+        // unsigned addr = 0x401797; // a = 5 的指令地址
+        unsigned addr = 0x4017ac; // b = 6
         unsigned data = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0); // peek:窥探对应地址的值
         procmsg("Original data at 0x%08x: 0x%08x\n", addr, data);
 
