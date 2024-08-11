@@ -1,0 +1,77 @@
+
+--------------------------------------------------------------------
+添加int3后，continue执行的结果。
+此时debugger进程收到child trap的信号
+
+[708076] debugger started
+[708077] target started. will run 'test_static' 
+[708076] Child started. RIP: 0x00401650
+[708076] Original data at 0x00401797: 0x05fc45c7
+[708076] After trap, data at 0x00401797: 0x05fc45cc
+Hello
+[708076] Child got a signal: Trace/breakpoint trap
+[708076] Child stopped at RIP = 0x00401798
+
+--------------------------------------------------------------------
+修改int 3指令为原来的指令，回跳rip，继续执行，但是会出现一小段报错，child才执行完成
+
+[708986] debugger started
+[708987] target started. will run 'test_static' 
+[708986] Child started. RIP: 0x00401650
+[708986] Original data at 0x00401797: 0x05fc45c7
+[708986] After trap, data at 0x00401797: 0x05fc45cc
+Hello
+[708986] Child got a signal: Trace/breakpoint trap
+[708986] Child stopped at RIP = 0x00401798 // 之后，child继续执行
+
+// child执行到0x0040179e时，会触发异常 
+[708986] Unexpected signal
+[708986] Child started. RIP: 0x0040179e
+
+
+[708986] Original data at 0x00401797: 0x05fc45c7
+[708986] After trap, data at 0x00401797: 0x05fc45cc
+[708986] Child got a signal: Bus error
+[708986] Child stopped at RIP = 0x0040179e
+
+
+
+[708986] Unexpected signal
+[708986] Child started. RIP: 0x0040179d
+[708986] Original data at 0x00401797: 0x05fc45c7
+[708986] After trap, data at 0x00401797: 0x05fc45cc
+[708986] Child got a signal: Segmentation fault
+[708986] Child stopped at RIP = 0x0040179d
+[708986] Unexpected signal
+[708986] Child started. RIP: 0x0040179c
+[708986] Original data at 0x00401797: 0x05fc45c7
+[708986] After trap, data at 0x00401797: 0x05fc45cc
+[708986] Child got a signal: Segmentation fault
+[708986] Child stopped at RIP = 0x0040179c
+[708986] Unexpected signal
+[708986] Child started. RIP: 0x0040179b
+[708986] Original data at 0x00401797: 0x05fc45c7
+[708986] After trap, data at 0x00401797: 0x05fc45cc
+[708986] Child got a signal: Segmentation fault
+[708986] Child stopped at RIP = 0x0040179b
+//接着，rip回退到0x0040179a
+
+world
+[708986] Child exited
+[708986] the child executed 5 instructions
+
+--------------------------------------------------------------------
+神奇！我在test.c中在第二个printf中打印了a变量，没有出现child发出异常信号，但是a的值被改变了？
+
+[710089] debugger started
+[710090] target started. will run 'test_static' 
+[710089] Child started. RIP: 0x00401650
+[710089] Original data at 0x00401797: 0x05fc45c7
+[710089] After trap, data at 0x00401797: 0x05fc45cc
+Hello
+[710089] Child got a signal: Trace/breakpoint trap
+[710089] Child stopped at RIP = 0x00401798
+[710089] unwind rip at 0x00401797: 0x05fc45c7 // 对应地址上值都已经改回去了，但是a的值却变了<o>
+world a = 6
+[710089] Child exited
+[710089] the child executed 1 instructions
